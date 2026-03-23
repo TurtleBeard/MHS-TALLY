@@ -1,21 +1,21 @@
 const CACHE_NAME = 'mhs-tools-v1';
-const ASSETS = [
+// Only put the ABSOLUTE essentials here
+const ASSETS_TO_CACHE = [
   './',
   './index.html',
-  './logo192.png',
-  './logo512.png'
+  './manifest.json'
 ];
 
-// Install the service worker and cache assets
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS);
+      // we use cache.addAll but wrap it to catch errors
+      return cache.addAll(ASSETS_TO_CACHE).catch(err => console.log("Cache error: ", err));
     })
   );
+  self.skipWaiting();
 });
 
-// Serve assets from cache when offline
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((response) => {
