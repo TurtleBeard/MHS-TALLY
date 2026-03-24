@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>House Tallies | Michaelhouse</title>
+	<link rel="icon" type="assets/image/x-icon" href="assets/images/favicon.ico">
+    <style>
+        @font-face {
+            font-family: 'OrpheusPro';
+            src: url('assets/fonts/OrpheusPro-Bold.ttf') format('truetype');
+            font-weight: bold; font-style: normal; font-display: swap;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+
+        body {
+            font-family: 'OrpheusPro', 'Times New Roman', serif;
+            font-weight: bold;
+            background: url('assets/images/background.png') center/cover fixed no-repeat;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            overflow: hidden;
+        }
+		
+		hr{
+			border-color: #e13a3e
+		}
+
+        .main-container {
+            width: 100%;
+            max-width: 1400px;
+            height: 96vh;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(2px);
+            border-radius: 2rem;
+            padding: 1rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            border: 8px double rgba(35, 52, 106, 1);
+        }
+
+        .banner { flex-shrink: 0; text-align: center; margin-bottom: 0.5rem; }
+        .banner img { max-width: 100%; max-height: 150px; object-fit: contain; }
+
+        /* --- DISPLAY PAGE GRID --- */
+        .tallies-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            width: 100%;
+            flex-grow: 1;
+            justify-content: center;
+            align-content: stretch;
+            padding-bottom: 5px;
+        }
+
+        .tally-card {
+            border-radius: 1.5rem; 
+            padding: 1rem; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: space-between; 
+            align-items: center;
+            border: 1px solid rgba(255,255,255,0.2);
+            flex: 1 1 calc(20% - 1rem); 
+        }
+
+        .items-1 .tally-card { flex: 1 1 100%; }
+        .items-2 .tally-card { flex: 1 1 calc(50% - 1rem); }
+        .items-3 .tally-card { flex: 1 1 calc(33.33% - 1rem); }
+        .items-4 .tally-card { flex: 1 1 calc(50% - 1rem); } 
+        .items-6 .tally-card { flex: 1 1 calc(33.33% - 1rem); }
+        .items-8 .tally-card { flex: 1 1 calc(25% - 1rem); }
+        .items-10 .tally-card { flex: 1 1 calc(20% - 1rem); }
+
+        .tally-name {
+            font-size: clamp(1.2rem, 3.5vh, 3rem); 
+            background: rgba(255, 255, 255, 0.8	); 
+            color: #23346a; padding: 0.5rem 1rem; border-radius: 1rem; width: 100%; text-align: center;
+            line-height: 1.1;
+        }
+
+        .count-display {
+            font-size: clamp(4rem, 18vh, 16rem); 
+            background: rgba(255, 255, 255, 0.95);
+            width: 95%; flex-grow: 1; margin-top: 0.8rem;
+            display: flex; justify-content: center; align-items: center; border-radius: 1.2rem;
+            transition: transform 0.1s ease;
+        }
+
+        /* --- CONTROLLER STYLES --- */
+        .ctrl-scroll-area {
+            flex-grow: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 0 5px;
+        }
+
+        .ctrl-list { 
+            display: flex; flex-direction: column; gap: 8px; 
+            width: 100%; max-width: 500px; margin: 0 auto; 
+        }
+
+        .ctrl-item {
+            display: flex; align-items: center; padding: 10px 12px; 
+            border-radius: 12px; color: white; gap: 10px; flex-shrink: 0;
+            width: 100%;
+        }
+
+        .editable-label {
+            background: rgba(0,0,0,0.3); border: none; color: white;
+            font-family: inherit; font-weight: bold; flex-grow: 1; padding: 6px; border-radius: 4px;
+        }
+
+        .ctrl-count-input {
+            background: white; border: none; border-radius: 8px;
+            font-size: 1.5rem; font-weight: bold; width: 65px; text-align: center;
+            appearance: textfield; -moz-appearance: textfield;
+        }
+        .ctrl-count-input::-webkit-outer-spin-button,
+        .ctrl-count-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+        .ctrl-btn {
+            background: rgba(0,0,0,0.4); border: none; color: white;
+            width: 38px; height: 38px; border-radius: 8px; cursor: pointer; font-size: 1.4rem;
+        }
+
+        .ctrl-actions { flex-shrink: 0; padding: 1rem 0; text-align: center; }
+
+        .reset-btn {
+            padding: 12px 35px; background: #da1a32; color: white;
+            border: none; border-radius: 40px; cursor: pointer; font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .credits {
+            font-size: 0.8rem;
+            opacity: 1;
+            color: #23346a;
+            letter-spacing: 1px;
+        }
+
+        .ctrl-scroll-area::-webkit-scrollbar { width: 6px; }
+        .ctrl-scroll-area::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="main-container">
+    <div class="banner">
+        <img src="assets/images/banner.png" alt="Michaelhouse" onerror="this.style.display='none'">
+		<hr/>
+    </div>
+
+    
+    <div id="appBody" style="flex-grow: 1; overflow: hidden; display: flex; flex-direction: column;"></div>
+
+    <div id="ctrlActions" class="ctrl-actions" style="display: none;">
+        <button class="reset-btn" onclick="resetAll()">RESET ALL TALLIES</button>
+        <div class="credits">Trent Buckley | 2026</div>
+    </div>
+</div>
+
+<script>
+    const defaultHouses = [
+        { id: 0, displayName: "Founders", color: "#da1a32", count: 0, visible: true },
+        { id: 1, displayName: "East", color: "#5c0845", count: 0, visible: true },
+        { id: 2, displayName: "West", color: "#002d5b", count: 0, visible: true },
+        { id: 3, displayName: "Farfield", color: "#ffdd54", count: 0, visible: true },
+        { id: 4, displayName: "Tatham", color: "#006b4e", count: 0, visible: true },
+        { id: 5, displayName: "Pascoe", color: "#4d230e", count: 0, visible: true },
+        { id: 6, displayName: "Baines", color: "#7dcef1", count: 0, visible: true },
+        { id: 7, displayName: "Mackenzie", color: "#f57f29", count: 0, visible: true },
+        { id: 8, displayName: "Ralfe", color: "#59ba58", count: 0, visible: true },
+        { id: 9, displayName: "McCormick", color: "#7d4a9d", count: 0, visible: true }
+    ];
+
+    let tallies = JSON.parse(localStorage.getItem('mh_tallies')) || defaultHouses;
+    const channel = new BroadcastChannel('mh_sync');
+    const isController = new URLSearchParams(window.location.search).has('controller');
+
+    function saveData() {
+        localStorage.setItem('mh_tallies', JSON.stringify(tallies));
+        channel.postMessage({ type: 'update', data: tallies });
+    }
+
+    window.toggleVisibility = (id) => {
+        const house = tallies.find(h => h.id === id);
+        if (house) {
+            house.visible = !house.visible;
+            saveData();
+            if (!isController) render();
+        }
+    };
+
+    window.updateCount = (id, delta) => {
+        const house = tallies.find(h => h.id === id);
+        if (house) {
+            house.count = Math.max(0, house.count + delta);
+            saveData();
+            render(id);
+        }
+    };
+
+    window.commitManualEntry = (id, val) => {
+        const house = tallies.find(h => h.id === id);
+        if (house) {
+            house.count = parseInt(val) || 0;
+            saveData();
+            channel.postMessage({ type: 'update', data: tallies });
+        }
+    };
+
+    window.commitRename = (id, name) => {
+        const house = tallies.find(h => h.id === id);
+        if (house) {
+            house.displayName = name;
+            saveData();
+            channel.postMessage({ type: 'update', data: tallies });
+        }
+    };
+
+    window.resetAll = () => {
+        if(confirm("Are you sure you want to reset all scores?")) {
+            tallies.forEach(h => h.count = 0);
+            saveData();
+            render();
+        }
+    };
+
+    function render(updatedId = null) {
+        const container = document.getElementById('appBody');
+        const actions = document.getElementById('ctrlActions');
+        if (isController && document.activeElement.tagName === 'INPUT') return;
+        container.innerHTML = '';
+
+        if (isController) {
+            actions.style.display = 'block';
+            const scrollArea = document.createElement('div');
+            scrollArea.className = 'ctrl-scroll-area';
+            const list = document.createElement('div');
+            list.className = 'ctrl-list';
+            
+            tallies.forEach(h => {
+                const item = document.createElement('div');
+                item.className = 'ctrl-item';
+                item.style.backgroundColor = h.color;
+                item.innerHTML = `
+                    <input type="checkbox" style="width:22px;height:22px;cursor:pointer;" ${h.visible ? 'checked' : ''} onchange="toggleVisibility(${h.id})">
+                    <input type="text" class="editable-label" value="${h.displayName}" onchange="commitRename(${h.id}, this.value)">
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <button class="ctrl-btn" onclick="updateCount(${h.id}, -1)">-</button>
+                        <input type="number" class="ctrl-count-input" style="color:${h.color}" value="${h.count}" onchange="commitManualEntry(${h.id}, this.value)">
+                        <button class="ctrl-btn" onclick="updateCount(${h.id}, 1)">+</button>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+            scrollArea.appendChild(list);
+            container.appendChild(scrollArea);
+        } else {
+            actions.style.display = 'none';
+            const grid = document.createElement('div');
+            const visibleHouses = tallies.filter(h => h.visible);
+            grid.className = `tallies-grid items-${visibleHouses.length}`;
+
+            visibleHouses.forEach(h => {
+                const card = document.createElement('div');
+                card.className = 'tally-card';
+                card.style.background = `linear-gradient(145deg, ${h.color}ff 20%, #00000033 100%), ${h.color}`;
+                const countBox = document.createElement('div');
+                countBox.className = 'count-display';
+                countBox.style.color = h.color;
+                countBox.textContent = h.count;
+                if (updatedId === h.id) {
+                    countBox.style.transform = 'scale(1.05)';
+                    setTimeout(() => countBox.style.transform = 'scale(1)', 100);
+                }
+                card.innerHTML = `<div class="tally-name">${h.displayName}</div>`;
+                card.appendChild(countBox);
+                grid.appendChild(card);
+            });
+            container.appendChild(grid);
+        }
+    }
+
+    channel.onmessage = (e) => {
+        if (e.data.type === 'update') {
+            tallies = e.data.data;
+            if (!isController) render();
+            else {
+                const inputs = document.querySelectorAll('.ctrl-count-input');
+                const labels = document.querySelectorAll('.editable-label');
+                tallies.forEach((h, i) => {
+                    if(inputs[i] && document.activeElement !== inputs[i]) inputs[i].value = h.count;
+                    if(labels[i] && document.activeElement !== labels[i]) labels[i].value = h.displayName;
+                });
+            }
+        }
+    };
+
+    document.addEventListener('keydown', (e) => {
+        if (document.activeElement.tagName === 'INPUT') return; 
+        const key = e.key.toLowerCase();
+        if (key === 'f') {
+            if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+            else document.exitFullscreen();
+        }
+        if (key === 'c' && !isController) {
+            window.open(window.location.href + '?controller=true', 'mh_ctrl', 'width=500,height=850');
+        }
+    });
+
+    render();
+</script>
+</body>
+</html>
